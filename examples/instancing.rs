@@ -1,4 +1,8 @@
-use miniquad::*;
+use miniquad_crates as miniquad;
+use miniquad_crates::*;
+
+use macroquad::drawing::DrawContext;
+use macroquad::hash;
 
 use glam::{vec3, Mat4, Vec3};
 
@@ -12,6 +16,8 @@ struct Stage {
     pos: Vec<Vec3>,
     vel: Vec<Vec3>,
     ry: f32,
+
+    drawing: macroquad::drawing::DrawContext,
 }
 
 impl Stage {
@@ -75,11 +81,30 @@ impl Stage {
             pos: Vec::with_capacity(MAX_PARTICLES),
             vel: Vec::with_capacity(MAX_PARTICLES),
             ry: 0.,
+            drawing: DrawContext::new(ctx),
         }
     }
 }
 
 impl EventHandler for Stage {
+    fn mouse_motion_event(&mut self, _: &mut Context, x: f32, y: f32, _dx: f32, _dy: f32) {
+        use macroquad::megaui::InputHandler;
+
+        self.drawing.ui.mouse_move((x, y));
+    }
+
+    fn mouse_button_down_event(&mut self, _: &mut Context, _: MouseButton, x: f32, y: f32) {
+        use macroquad::megaui::InputHandler;
+
+        self.drawing.ui.mouse_down((x, y));
+    }
+
+    fn mouse_button_up_event(&mut self, _: &mut Context, _: MouseButton, x: f32, y: f32) {
+        use macroquad::megaui::InputHandler;
+
+        self.drawing.ui.mouse_up((x, y));
+    }
+
     fn update(&mut self, ctx: &mut Context) {
         let frame_time = 1. / 60.;
 
@@ -136,6 +161,22 @@ impl EventHandler for Stage {
         ctx.draw(0, 24, self.pos.len() as i32);
         ctx.end_render_pass();
 
+        let pos = &mut self.pos;
+        let vel = &mut self.vel;
+        self.drawing.draw_window(
+            macroquad::hash!(),
+            macroquad::Vec2::new(220., 70.),
+            macroquad::Vec2::new(200., 200.),
+            |ui| {
+                ui.label(None, &format!("Instanced: {}", pos.len()));
+                if ui.button(None, "clear") {
+                    pos.clear();
+                    vel.clear();
+                }
+            },
+        );
+        self.drawing.perform_render_passes(ctx);
+
         ctx.commit_frame();
     }
 }
@@ -147,7 +188,7 @@ fn main() {
 }
 
 mod shader {
-    use miniquad::*;
+    use miniquad_crates::*;
 
     pub const VERTEX: &str = r#"#version 100
     attribute vec3 pos;

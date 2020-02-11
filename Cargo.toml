@@ -35,3 +35,8 @@ sapp-dummy = { path ="./native/sapp-dummy", version = "0.1.2" }
 
 [dev-dependencies]
 glam = {version = "0.8", features = ["scalar-math"] }
+
+# use miniquad itself to break circular dev-dependencie cycle for examples
+miniquad_crates = {package = "miniquad", version = "0.2.29" }
+# used for nice ui windows in examples
+macroquad = { git = "https://github.com/not-fl3/macroquad.git" }
