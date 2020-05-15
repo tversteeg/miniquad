@@ -363,6 +363,16 @@ into_sapp_mousebutton = function (btn) {
 
 into_sapp_keycode = function (key_code) {
     switch (key_code) {
+        case "Digit0": return 48;
+        case "Digit1": return 49;
+        case "Digit2": return 50;
+        case "Digit3": return 51;
+        case "Digit4": return 52;
+        case "Digit5": return 53;
+        case "Digit6": return 54;
+        case "Digit7": return 55;
+        case "Digit8": return 56;
+        case "Digit9": return 57;
         case "KeyA": return 65;
         case "KeyS": return 83;
         case "KeyD": return 68;
@@ -378,6 +388,8 @@ into_sapp_keycode = function (key_code) {
         case "Delete": return 261;
         case "Backspace": return 259;
     }
+
+    console.log("Unsupported keyboard key")
 }
 
 texture_size = function (internalFormat, width, height) {
@@ -663,8 +675,10 @@ var importObject = {
                 return;
             }
             if (pname == 0x8B84) { // GL_INFO_LOG_LENGTH
-                console.error("unsupported operation");
-                return;
+                var log = gl.getProgramInfoLog(GL.programs[program]);
+                assert(log !== null);
+
+                getArray(p, Int32Array, 1)[0] = log.length + 1;
             } else if (pname == 0x8B87 /* GL_ACTIVE_UNIFORM_MAX_LENGTH */) {
                 console.error("unsupported operation");
                 return;
@@ -682,6 +696,21 @@ var importObject = {
             var id = GL.getNewId(GL.shaders);
             GL.shaders[id] = gl.createShader(shaderType);
             return id;
+        },
+        glStencilFuncSeparate: function (face, func, ref_, mask) {
+            gl.stencilFuncSeparate(face, func, ref_, mask);
+        },
+        glStencilMaskSeparate: function (face, mask) {
+            gl.stencilMaskSeparate(face, mask);
+        },
+        glStencilOpSeparate: function (face, fail, zfail, zpass) {
+            gl.stencilOpSeparate(face, fail, zfail, zpass);
+        },
+        glFrontFace: function (mode) {
+            gl.frontFace(mode);
+        },
+        glCullFace: function (mode) {
+            gl.cullFace(mode);
         },
         glShaderSource: function (shader, count, string, length) {
             GL.validateGLObjectID(GL.shaders, shader, 'glShaderSource', 'shader');
